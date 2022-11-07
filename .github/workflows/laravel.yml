@@ -1,4 +1,4 @@
-name: CTS_TechEx_Laravel
+name: Laravel
 
 on:
   push:
