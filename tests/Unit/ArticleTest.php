@@ -106,7 +106,7 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => "", 'Cache' => true];
+        $headers = ['Authorization' => "", 'cache' => true];
         $searchQry = 'Lorem'; //all of fields of values can search
 
         $response = $this->json('GET', '/api/articles/all?qry=' . $searchQry, [], $headers)
@@ -139,7 +139,7 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => "", 'Cache' => false];
+        $headers = ['Authorization' => "", 'cache' => false];
         $searchQry = 'Lorem'; //all of fields of values can search
 
         $response = $this->json('GET', '/api/articles/all?qry=' . $searchQry, [], $headers)
