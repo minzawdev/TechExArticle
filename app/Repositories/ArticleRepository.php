@@ -6,6 +6,7 @@ use App\Http\Resources\ArticleCollection;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\ArticleResource;
 use App\Http\Resources\ArticleSearchResource;
+use App\Http\Resources\ArticleSearchSpecificDateTime;
 use App\Repositories\Interfaces\IArticleRepository;
 use Carbon\Carbon;
 use App\Models\Article;
@@ -67,22 +68,47 @@ class ArticleRepository implements IArticleRepository
         return new ArticleResource($result);
     }
 
+    public function findWithDateTime($data)
+    {
+        $articles = Article::select([
+            'id',
+            'title',
+            'body',
+            'created_at',
+            'updated_at'
+        ])
+            ->where('title', $data['key'])
+            ->orderBy('created_at', 'desc');
+
+        if ($data['datetime']) {
+            $cacheKey = __METHOD__ . '-' . $data['key'] . '_' . $data['datetime'];
+            if (!Cache::has($cacheKey)) {
+                $articles = Cache::remember($cacheKey, now()->addMinutes(1), function () use ($data, $articles) {
+                    $articles = $articles->get();
+                    if ($data['datetime']) {
+                        $articles->map(function ($article) {
+                            $article = new ArticleSearchSpecificDateTime($article);
+                            return $article->toArray($article);
+                        })->reject(function ($article, $key) use ($articles, $data) {
+                            if (!$this->searchArray($data['datetime'], $article)) {
+                                $articles->forget($key);
+                            }
+                        });
+                    }
+                    return $articles;
+                });
+            } else {
+                $articles = Cache::get($cacheKey);
+            }
+        } else {
+            $articles = $articles->get();
+        }
+        return (ArticleResource::collection($articles));
+    }
+
     public function find($id)
     {
         $article = Article::findOrFail($id);
         return new ArticleResource($article);
-    }
-
-    public function findWithDateTime($key, $specific_datetime)
-    {
-        $qry_article = Article::where('title', $key);
-
-        if ($specific_datetime)
-            $qry_article->where('created_at', 'like', $specific_datetime)
-                ->orWhere('updated_at', $specific_datetime);
-
-        $articles = $qry_article->orderBy('updated_at', 'desc')->get();
-
-        return ArticleResource::collection($articles);
     }
 }

@@ -40,11 +40,14 @@ class ArticleController extends Controller
         $result = $this->articleRepository->create($request->all());
         return response()->json($result, 201);
     }
-    
+
     public function findWithDateTime($key, Request $request)
     {
-        $specific_datetime = isset($request->timestamp) ? $request->timestamp : null;
-        $result = $this->articleRepository->findWithDateTime($key, $specific_datetime);
+        $data = [
+            'key'      => $key,
+            'datetime' => isset($request->timestamp) ? $request->timestamp : null
+        ];
+        $result = $this->articleRepository->findWithDateTime($data);
         return response()->json($result, 200);
     }
 }

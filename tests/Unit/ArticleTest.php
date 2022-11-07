@@ -1,16 +1,13 @@
 <?php
 
 namespace Tests\Unit;
+
 use App\Models\Article;
 use Carbon\Carbon;
 use Tests\TestCase;
+
 class ArticleTest extends TestCase
 {
-    /**
-     * A basic unit test example.
-     *
-     * @return void
-     */
     public function test_example()
     {
         $this->assertTrue(true);
@@ -41,9 +38,7 @@ class ArticleTest extends TestCase
             ]
         );
 
-        $headers = ['Authorization' => ""];
-
-        $response = $this->json('GET', '/api/articles/all', [], $headers)
+        $response = $this->getJson('/api/articles/all')
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -73,10 +68,9 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => ""];
         $searchQry = 'Lorem'; //all of fields of values can search
 
-        $response = $this->json('GET', '/api/articles/all?qry=' . $searchQry, [], $headers)
+        $response = $this->getJson('/api/articles/all?qry=' . $searchQry)
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -106,10 +100,10 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => "", 'cache' => true];
+        $headers = ['Authorization' => "", 'cache' => 1];
         $searchQry = 'Lorem'; //all of fields of values can search
 
-        $response = $this->json('GET', '/api/articles/all?qry=' . $searchQry, [], $headers)
+        $response = $this->getJson('/api/articles/all?qry=' . $searchQry, $headers)
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -139,10 +133,10 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => "", 'cache' => false];
+        $headers = ['Authorization' => "", 'cache' => 0];
         $searchQry = 'Lorem'; //all of fields of values can search
 
-        $response = $this->json('GET', '/api/articles/all?qry=' . $searchQry, [], $headers)
+        $response = $this->getJson('/api/articles/all?qry=' . $searchQry, [], $headers)
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -172,10 +166,9 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => ""];
-        $nextPagination = 2;
+        $nextPage = 2;
 
-        $response = $this->json('GET', '/api/articles/all?page=' . $nextPagination, [], $headers)
+        $response = $this->getJson('/api/articles/all?page=' . $nextPage)
             ->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
@@ -200,13 +193,12 @@ class ArticleTest extends TestCase
 
     public function testArticlesAreCreatedCorrectly()
     {
-        $headers = ['Authorization' => ""];
         $payload = [
             'title' => 'Lorem',
             'body' => 'Ipsum'
         ];
 
-        $this->json('POST', '/api/articles', $payload, $headers)
+        $this->postJson('/api/articles', $payload)
             ->assertStatus(201)
             ->assertJson([
                 'title' => 'Lorem', 'body' => 'Ipsum'
@@ -223,11 +215,9 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => ""];
-
         $id = encrypt($article->id);
 
-        $response = $this->json('GET', '/api/articles/' . $id . '/show', [], $headers)
+        $response = $this->getJson('/api/articles/' . $id . '/show')
             ->assertStatus(200)
             ->assertJson([
                 'title' => 'Lorem',
@@ -245,11 +235,10 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => ""];
         $key = $article->title;
         $specific_datetime = $article->created_at;
 
-        $response = $this->json('GET', '/api/articles/' . $key . '?timestamp=' . $specific_datetime, [], $headers)
+        $response = $this->getJson('/api/articles/' . $key . '?timestamp=' . $specific_datetime)
             ->assertStatus(200)
             ->assertJsonStructure([
                 '*' => ['id', 'title', 'body', 'created_at', 'updated_at']
@@ -262,10 +251,22 @@ class ArticleTest extends TestCase
             'title' => 'Lorem',
             'body' => 'Ipsum'
         ]);
-
-        $headers = ['Authorization' => ""];
         $key = $article->title;
-        $response = $this->json('GET', '/api/articles/' . $key, [], $headers)
+        $response = $this->getJson('/api/articles/' . $key)
+            ->assertStatus(200)
+            ->assertJsonStructure([
+                '*' => ['id', 'title', 'body', 'created_at', 'updated_at']
+            ]);
+    }
+
+    public function testArticlesFindKeyAgainCorrectly()
+    {
+        $article = Article::create([
+            'title' => 'Lorem',
+            'body' => 'Ipsum'
+        ]);
+        $key = $article->title;
+        $response = $this->getJson('/api/articles/' . $key)
             ->assertStatus(200)
             ->assertJsonStructure([
                 '*' => ['id', 'title', 'body', 'created_at', 'updated_at']
@@ -274,7 +275,7 @@ class ArticleTest extends TestCase
 
     public function testRequiresArticlesCreate()
     {
-        $this->json('POST', '/api/articles')
+        $this->postJson('/api/articles')
             ->assertStatus(422)
             ->assertJson([
                 "message" => "The given data was invalid.",
@@ -291,8 +292,6 @@ class ArticleTest extends TestCase
 
     public function testMaxCharacterArticlesCreate()
     {
-        $headers = ['Authorization' => ""];
-
         $payload = [
             'title' => 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry
                     standard dummy text ever since the 1500s',
@@ -301,7 +300,7 @@ class ArticleTest extends TestCase
              and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
         ];
 
-        $this->json('POST', '/api/articles', $payload, $headers)
+        $this->postJson('/api/articles', $payload)
             ->assertStatus(422)
             ->assertJson([
                 "message" => "The given data was invalid.",
@@ -315,5 +314,4 @@ class ArticleTest extends TestCase
                 ]
             ]);
     }
-
 }

@@ -8,7 +8,7 @@ interface IArticleRepository
 
     public function find($id);
 
-    public function findWithDateTime($key, $datetime);
+    public function findWithDateTime($data);
 
     public function getAll($data = null);
 }

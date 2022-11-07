@@ -23,18 +23,19 @@ class CustomRequest extends FormRequest
             ]);
         }
 
-        if ($this->has('cache')) {
+        if ($this->hasHeader('cache')) {
             $this->merge([
-                'cache' => $this->cache,
+                'cache' => $this->Header('cache'),
             ]);
         } else {
             $this->merge([
-                'cache' => true,
+                'cache' => 1,
             ]);
         }
+
         $this->validate([
             'qry'           => 'max:255',
-            'cache'         => 'required|boolean',
+            'cache'         => 'boolean',
         ]);
 
         return [];
