@@ -30,3 +30,4 @@ jobs:
       run: |
         php artisan migrate:refresh --seed
         vendor/bin/phpunit tests/
+        ./vendor/bin/phpunit --coverage-html reports/
