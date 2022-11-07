@@ -1,15 +1,21 @@
 <?php
 
-namespace Tests\Feature;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+namespace Tests\Unit;
 use App\Models\Article;
 use Carbon\Carbon;
-
+use Tests\TestCase;
 class ArticleTest extends TestCase
 {
+    /**
+     * A basic unit test example.
+     *
+     * @return void
+     */
+    public function test_example()
+    {
+        $this->assertTrue(true);
+    }
+
     public function testArticlesAreListedCorrectly()
     {
         Article::insert(
@@ -166,7 +172,7 @@ class ArticleTest extends TestCase
             'body' => 'Ipsum'
         ]);
 
-        $headers = ['Authorization' => "" ,'Cache' => true];
+        $headers = ['Authorization' => ""];
         $nextPagination = 2;
 
         $response = $this->json('GET', '/api/articles/all?page=' . $nextPagination, [], $headers)
@@ -309,4 +315,5 @@ class ArticleTest extends TestCase
                 ]
             ]);
     }
+
 }
