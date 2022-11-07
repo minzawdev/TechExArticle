@@ -26,7 +26,8 @@ jobs:
       run: |
         cp .env.ci .env
         php artisan key:generate
-    - name: Run Testsuite
+    - name: Run Testsuite and unit test coverage
       run: |
         php artisan migrate:refresh
         vendor/bin/phpunit tests/
+        ./vendor/bin/phpunit --coverage-html reports/
