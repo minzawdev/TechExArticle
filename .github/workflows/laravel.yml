@@ -15,14 +15,12 @@ jobs:
           - 33306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
-    - name: Setup PHP with Xdebug 2.x
-      uses: shivammathur/setup-php@v2
+    - uses: actions/checkout@v1
       with:
-        php-version: '7.4'
-        coverage: xdebug2
+        fetch-depth: 1
     - name: Install composer dependencies
       run: |
-        composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
+        composer install --no-scripts
  
     - name: Prepare Laravel Application
       run: |
@@ -30,6 +28,5 @@ jobs:
         php artisan key:generate
     - name: Run Testsuite
       run: |
-        php artisan migrate:refresh --seed
+        php artisan migrate:refresh
         vendor/bin/phpunit tests/
-        ./vendor/bin/phpunit --coverage-html reports/
