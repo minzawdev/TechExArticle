@@ -22,7 +22,7 @@ jobs:
         coverage: xdebug2
     - name: Install composer dependencies
       run: |
-        composer update --ignore-platform-reqs
+        composer install -q --no-ansi --no-interaction --no-scripts --no-suggest --no-progress --prefer-dist
  
     - name: Prepare Laravel Application
       run: |
